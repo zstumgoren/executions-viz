@@ -50,6 +50,23 @@ Next, create external files for javascript and css (note these are referenced in
 touch app.css app.js
 ```
 
+Add the following to `app.css`:
+
+```css
+h1 {
+  margin-left: 15px;
+}
+svg {
+  margin-top: 40px;
+  margin-left: 30px;
+  overflow: visible;
+}
+rect {
+  stroke:white;
+  stroke-width:2px;
+}
+```
+
 Finally, download the [execution_database.csv][] and drop it into `executions-viz` alongside the other files:
 
 ```bash
@@ -109,7 +126,7 @@ Date,Name,Age,Sex,Race,Number / Race / Sex of Victims,State,Region,Method,Juveni
 01/11/1985,Joseph Shaw,29,m,White,1 White Male(s)1 White Female(s),SC,S,Electrocution,No,No,No,No,Richland
 ```
 
-Let's read this data using [d3.csv][]. Add the following to `app.js` and then reload `http://localhost:8000/index.html] in your browser. **Make sure to open the developer toolbar**.
+Let's read this data using [d3.csv][]. Add the following to `app.js` and then reload `http://localhost:8000/index.html` in your browser. **Make sure to open the developer toolbar**.
 
 ```js
 //app.js
@@ -168,6 +185,7 @@ d3.csv("execution_database.csv", row)
 
 A few notes on the above:
 
+* The `row` function is an optional argument to [d3.csv][] that processes each incoming row of data in the CSV.
 * The `+` sign convert strings to integers.
 * We only return data from 2000 on.
 * We created a new `year` field based on the original Date. This will help us group and sort by year.
@@ -221,7 +239,7 @@ If you reload `index.html` and go to the Chrome Dev Tools console, you should se
 
 So we've grouped and sorted our data by year. Next, we need to count the number of executions by year. The yearly count will allow us to appropriately size the columns in the chart.
 
-To get a count of executions for each year, update the `nest` a call to [d3.rollup][]  `nest` function:
+To get a count of executions for each year, update the code to include a call to [d3.rollup][]:
 
 [d3.rollup]: https://github.com/d3/d3-collection#nest_rollup
 
@@ -319,7 +337,7 @@ For our use case, we'll use a [linear scale][]. This scale has two critical comp
 
 Configuring the range and domain for our scale will allow us to map data values to visual coordinates.
 
-All of this is admittedly abstract. Let's add the below code and then spend some time tinkering in the Chrome Developer Tools to get a handle on these concepts.
+All of this is admittedly abstract. Let's add the below code and then spend some time tinkering in the Chrome Developer Toolbar to get a handle on these concepts.
 
 ```js
 // Add this AFTER the data join code
@@ -343,9 +361,13 @@ Some key things to note above:
 * `yscale.domain` maps data values to coordinates in the visual range. High data values will have lower Y values closer to the top of the chart; low data values will have higher Y values, farther from the top of the chart.
 * The `xScale` is more straight-forward. Range is 0 and the width of the svg, while the domain is set to 0 and the count of executions in a given year.
 
-The scale functions generate pixel values for a given data value. These values will can then be used to set x and y values for each rectangle.
+The scale functions generate pixel values for a given data value. These values can then be used to set X and Y coordinates for each rectangle.
 
-You can get a feel for how the functions are used dropping some log statements into code and viewing the results in the Developer Console. Below, we see that our lowest yearly count of executions (20) generates a high pixel value on the Y scale, and our highest yearly count (85) generates a low value. We'll use these values in the next step when we set various attributes on the `rect` elements and render them visually.
+You can get a feel for how the functions are used by dropping some log statements into the code and viewing the results in the Developer Console. Below, we see that our lowest yearly count of executions (20) generates a high pixel value on the Y scale, and our highest yearly count (85) generates a low value.
+
+We'll use these values in the next step when we set various attributes on the `rect` elements and render them visually.
+
+> Don't forget to remove the `console.log` statements before moving on!
 
 ![console yscale demo](img/console-yscale-demo.png)
 
@@ -377,7 +399,7 @@ Some notes on the above:
 * The `height` attribute subtracts the pixel value from `yScale` from the overall height. For small values, the height of the rectangle will be small. 
 * The `y` coordinate sets the starting pixel coordinate for the bars. As discussed above, a lower data value (i.e. number of executions) will result in a higher pixel value. 
 
-Again, try dropping some `console.log` statements into the code or setting debugger breakpoints in `app.js` to experiment with the code.
+Again, try dropping some `console.log` statements into the code or setting debugger breakpoints in `app.js` to experiment.
 Try disabling some of the attributes to see the effect.
 
 For example, what happens if you remove the code that sets the `y` coordinate? Can you explain why?
@@ -385,7 +407,7 @@ For example, what happens if you remove the code that sets the `y` coordinate? C
 
 ### Add axes
 
-Let's add some some axis labels to our chart.
+Let's add some axis labels to our chart.
 
 Years should appear under the bars, and the count of executions on the left axis. Add the below to `app.js` after the code that renders the rectangles of the bar.
 
@@ -430,9 +452,9 @@ For example, what happens if you remove the `transform` attribute on the bottom 
 
 #### Style the axes
 
-So we have our axes, but let's clean things up a little by removing the tick marks and axis line.
+So we have our axes, but let's clean things up a little by removing the tick marks and axis lines.
 
-It's important to remember that since we're dealing with SVG elements, you can use both D3 *and* CSS to control the appearance of the chart.
+Since we're dealing with SVG elements, you can use both D3 *and* CSS to control the appearance of the chart.
 
 > Check out the [d3-axis docs](https://github.com/d3/d3-axis) and the [Axis Styling][] code example for useful techniques, in particular how to remove the ".domain" line on an axis to clean up styling
 
@@ -446,7 +468,7 @@ First, let's remove the tick marks by adding the below to `app.css`:
 }
 ```
 
-If you reload the browser, the tick marks should be gone. But the "domain" lines that form the first and last tick marks remain. Let's get rid of those lines entirely. We'll borrow a trick from the [Axis Styling][] example code to remove the lines, which have a class attribute of `.domain`. 
+If you reload the browser, the tick marks should be gone. But the "domain" lines that include the first and last tick marks remain. Let's get rid of those lines entirely. We'll borrow a trick from the [Axis Styling][] example code to remove the lines, which have a class attribute of `.domain`. 
 
 Add the following line in `app.js` after `call(bottomAxis);`:
 
@@ -460,7 +482,7 @@ Reload the browser to view the newly styled axes:
 
 ## Add Interactivity
 
-The final step involves adding a dynamic tooltip when a user hovers over one of the bar chart columns. The code below is adapted from Mike Bostock's [Simple d3.js tooltips][] example, but the ideas can be extended for other types of interactivity.
+The final step involves adding a dynamic tooltip when a user hovers over one of the columns. The code below is adapted from Mike Bostock's [Simple d3.js tooltips][] example, but the ideas can be extended for other types of interactivity.
 
 [Simple d3.js tooltips]: http://bl.ocks.org/d3noob/a22c42db65eb00d4e369
 
@@ -468,7 +490,7 @@ To add interactive elements, we need to tap into user interactions with the page
 
 [event handlers]: https://developer.mozilla.org/en-US/docs/Web/Events
 
-In our case, we want to trigger a tooltip that shows the number of executions when a user hovers on a column in the chart. And of course, we need to remove the tooltip when the user stops hovering. 
+In our case, we want to trigger a tooltip that shows the number of executions when a user hovers on a column. And of course, we need to remove the tooltip when the user stops hovering. 
 
 We'll use D3 to attach functions that handle these events to all columns, along with some CSS to style the tooltip.
 
@@ -525,7 +547,7 @@ d3.selectAll('rect')
 A few notes on the above:
 
 * We created a "hidden" div for our tooltip
-* We created handlers for mouse events and used the [D3 transitions](https://github.com/d3/d3-transition) to smooth the appearance and disappearance of the tooltip (otherwise it would appear and vanish instantly).
+* We created handlers for mouse events and used [D3 transition](https://github.com/d3/d3-transition) to smooth the appearance and disappearance of the tooltip. Otherwise the tooltip would abruptly appear and vanish.
 * We used [`.on`](https://github.com/d3/d3-selection#selection_on) to attach the event handlers to all rectangles.
 
 If you reload the page and hover on a bar, you should see the tooltip:
@@ -542,7 +564,7 @@ At a high-level, the coding strategy would involve:
 * Adding "click" handlers to create and remove a page element displaying demographic info for a year. This could be a combination of text and more visuals.
 * Adding CSS, as needed, to style the page element for demographic info.
 
-It would also be useful to add narrative to the page detailing the total number of executions across all years along with top-line summary statistics. We can use D3 to [summarize][] and [group][] data to dynamically generate these figures and produce templated text that stays aligned with the source data.
+It would also be useful to add narrative to the page detailing the total number of executions across all years along with top-line summary statistics. We can use D3 to [summarize][] and [group][] data to dynamically generate these figures and produce templated text that stays in sync with the source data.
 
 
 [Data Viz with D3 Cookbook]: https://searchworks.stanford.edu/view/13214391]
