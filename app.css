@@ -1,0 +1,27 @@
+h1 {
+  margin-left: 15px;
+}
+svg {
+  margin-top: 40px;
+  margin-left: 30px;
+  overflow: visible;
+}
+rect {
+  stroke:white;
+  stroke-width:2px;
+}
+.tick line {
+  display: none;
+}
+div.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 65px;
+  height: 28px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+}
