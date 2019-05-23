@@ -138,7 +138,7 @@ d3.csv("execution_database.csv")
 
 Above, the `d3.csv("executions_database.csv)` is followed by a `then` call, which in turn is passed a "callback" function. This syntax is known as a [Promise][]. It's Javascript's way of ensuring the data has loaded before we try to do work with data.
 
-Notice the `data` argument is passed to this callback function. This let's us work with the data inside of `then`.
+Notice the `data` argument is passed to this callback function. This lets us work with the data inside of `then`.
 
 [Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises
 
